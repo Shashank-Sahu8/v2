@@ -21,7 +21,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             RecaptchaV2(
-              apiKey: '6Ld3gcEpAAAAAJ5tWeVxLXe2eYOtMCIVDNyTB658',
+              apiKey: '6LdCgcApAAAAAJ54Q2amsxhIARFBn2gHxN0GuSsA',
               controller: _recaptchaV2Controller,
               onVerifiedSuccessfully: () {
                 String? token = _recaptchaV2Controller.getResponseToken();
