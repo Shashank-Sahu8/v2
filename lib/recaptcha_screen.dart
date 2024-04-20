@@ -21,7 +21,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             RecaptchaV2(
-              apiKey: 'YOUR_RECAPTCHA_SITE_KEY',
+              apiKey: '6Ld3gcEpAAAAAJ5tWeVxLXe2eYOtMCIVDNyTB658',
               controller: _recaptchaV2Controller,
               onVerifiedSuccessfully: () {
                 String? token = _recaptchaV2Controller.getResponseToken();
@@ -35,11 +35,9 @@ class _MyHomePageState extends State<MyHomePage> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
-                // Get the reCAPTCHA response token
                 String? token = await _recaptchaV2Controller.getVerifiedToken();
 
                 if (token != null) {
-                  // Token obtained successfully, now send it to the backend API
                   await _sendTokenToAPI(token);
                 } else {
                   // Token retrieval failed
@@ -55,7 +53,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _sendTokenToAPI(String token) async {
-    final url = 'YOUR_BACKEND_API_URL'; // Replace with your backend API endpoint
+    final url = 'https://registration-w4hb.onrender.com/';
     final response = await http.post(
       Uri.parse(url),
       body: {
@@ -64,11 +62,9 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     if (response.statusCode == 200) {
-      // API call successful
       print('Token verification successful!');
       _showDialog('Token Verification', 'Token verified successfully.');
     } else {
-      // API call failed
       print('Token verification failed. Status code: ${response.statusCode}');
       _showDialog('Token Verification', 'Token verification failed.');
     }
@@ -84,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
               },
               child: Text('OK'),
             ),
