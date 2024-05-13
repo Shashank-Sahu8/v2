@@ -1,92 +1,159 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_recaptcha_v2_compat/flutter_recaptcha_v2_compat.dart';
-import 'package:http/http.dart' as http;
+import 'dart:async';
 
-class MyHomePage extends StatefulWidget {
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'dart:ui_web' as ui;
+import 'dart:html' as html;
+
+class RecaptchaWidget extends StatefulWidget {
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _RecaptchaWidgetState createState() => _RecaptchaWidgetState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  final RecaptchaV2Controller _recaptchaV2Controller = RecaptchaV2Controller();
+class _RecaptchaWidgetState extends State<RecaptchaWidget> {
+  String createdViewId = 'recaptcha_element';
+  String _token="empty";
+  bool isContainerVisible = false;
+bool isLoading=false;
+  void toggleContainerVisibility() {
+    setState(() {
+      isContainerVisible = !isContainerVisible;
+    });
+  }
+  void loadi() {
+    setState(() {
+      isLoading = !isLoading;
+    });
+  }
+
+  @override
+  void initState() {
+    ui.platformViewRegistry.registerViewFactory(
+      createdViewId,
+          (int viewId) =>
+      html.IFrameElement()
+        ..style.height = 200.toString()
+        ..style.width = 200.toString()
+        ..src = '/assets/recaptcha.html'
+        ..style.border = 'none',
+    );
+    html.window.onMessage.listen((msg) {
+      String token = msg.data;
+      print('Token received: $token');
+      loadi();
+      toggleContainerVisibility();
+      setState(() {
+        _token=token;
+      });
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('reCAPTCHA v2 Example'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+    return Stack(
+      children: [
+        Stack(
           children: [
-            RecaptchaV2(
-              apiKey: '6LdCgcApAAAAAJ54Q2amsxhIARFBn2gHxN0GuSsA',
-              controller: _recaptchaV2Controller,
-              onVerifiedSuccessfully: () {
-                String? token = _recaptchaV2Controller.getResponseToken();
-                if (token != null) {
-                  _sendTokenToBackend(token);
-                } else {
-                  print('Failed to get reCAPTCHA token');
-                }
-              },
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                String? token = await _recaptchaV2Controller.getVerifiedToken();
+            Column(
+                children: [
+                  Text(_token,style: TextStyle(fontSize: 12),),
 
-                if (token != null) {
-                  await _sendTokenToAPI(token);
-                } else {
-                  // Token retrieval failed
-                  print('Failed to get reCAPTCHA token');
-                }
-              },
-              child: Text('Verify and Send Token'),
+                  ElevatedButton(onPressed: () {
+                    toggleContainerVisibility();
+                  }, child: Text("hii")),
+
+                ]),
+            Visibility(
+              visible: isLoading,
+              child: GestureDetector(
+                onTap: loadi,
+                child: Container(
+                  color: Colors.black.withOpacity(0.2), // Transparent red
+                  height: MediaQuery
+                      .of(context)
+                      .size
+                      .height,
+                  width: MediaQuery
+                      .of(context)
+                      .size
+                      .width,
+                  child: Center(child: Text("Success")),
+                ),
+              ),
             ),
           ],
         ),
-      ),
-    );
-  }
 
-  Future<void> _sendTokenToAPI(String token) async {
-    final url = 'https://registration-w4hb.onrender.com/';
-    final response = await http.post(
-      Uri.parse(url),
-      body: {
-        'token': token,
-      },
-    );
-
-    if (response.statusCode == 200) {
-      print('Token verification successful!');
-      _showDialog('Token Verification', 'Token verified successfully.');
-    } else {
-      print('Token verification failed. Status code: ${response.statusCode}');
-      _showDialog('Token Verification', 'Token verification failed.');
-    }
-  }
-
-  void _showDialog(String title, String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
+        Visibility(
+          visible: isContainerVisible,
+          child: GestureDetector(
+            onTap: toggleContainerVisibility,
+            child: Container(
+              color: Colors.black.withOpacity(0.2), // Transparent red
+              height: MediaQuery
+                  .of(context)
+                  .size
+                  .height,
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width,
+              child: Container(height:400,width:300,child: HtmlElementView(viewType: createdViewId)),
             ),
-          ],
-        );
-      },
+          ),
+        ),
+      ],
+
+
     );
   }
+//   Future<void> _showRecaptchaDialog() async{
+//     Completer<void> completer = Completer<void>();
+//
+//     showDialog(
+//       context: context,
+//       barrierDismissible: false,
+//       builder: (BuildContext context) {
+//         return Dialog(
+//           insetPadding: EdgeInsets.all(10.0),
+//           child: Container(
+//             width: double.infinity,
+//             height: double.infinity,
+//             constraints: BoxConstraints(
+//               maxHeight: MediaQuery.of(context).size.height * 0.8,
+//             ),
+//             child: Column(
+//               mainAxisSize: MainAxisSize.min,
+//               children: [
+//                 HtmlElementView(viewType: createdViewId),
+//                 ElevatedButton(
+//                   onPressed: () {
+//                     Navigator.of(context).pop();
+//                     completer.complete();
+//                   },
+//                   child: Text("Close"),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         );
+//       },
+//     );
+//
+//     // Wait until the dialog is closed
+//     await completer.future;
+//     // await showDialog(
+//     //   context: context,
+//     //   barrierDismissible: false,
+//     //   builder: (BuildContext context) {
+//     //     return Center(
+//     //       child: HtmlElementView(viewType: createdViewId),
+//     //
+//     //       );
+//     //   },
+//     // );
+//   }
+// }
 }
+

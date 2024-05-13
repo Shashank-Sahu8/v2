@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_recaptcha_v2_compat/flutter_recaptcha_v2_compat.dart';
+import 'package:recaptcha_testing/recaptcha_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -12,74 +12,100 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Google ReCaptcha Demo'),
+      home: MyHomePage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
 
-  final String title;
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String verifyResult = "";
-
-  RecaptchaV2Controller recaptchaV2Controller = RecaptchaV2Controller();
-
-  @override
-  void dispose() {
-    recaptchaV2Controller.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Stack(
-        children: <Widget>[
-          Center(
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  RecaptchaV2(
-                    apiKey: "6LfXp1UpAAAAAEku9BSeBt6JJxXrlvtYjh--X4D7",
-                    apiSecret: "6LfXp1UpAAAAAIFVynIPkooVWZi5qN8u16SYJTVt",
-                    controller: recaptchaV2Controller,
-                    padding: EdgeInsetsDirectional.symmetric(horizontal: 24),
-                    onVerifiedError: (err) {
-                      print(err);
-                    },
-                    onVerifiedSuccessfully: (success) {
-                      setState(() {
-                        if (success) {
-                          verifyResult = "You've been verified successfully.";
-                        } else {
-                          verifyResult = "Failed to verify.";
-                        }
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    child: Text("Reload ReCAPTCHA"),
-                    onPressed: () => recaptchaV2Controller.reload(),
-                  ),
-                  Text(verifyResult),
-                ],
-              ),
-            ),
-          ),
-        ],
+      body: Center(
+        child: ElevatedButton(onPressed: (){Navigator.push(context, MaterialPageRoute(builder: (context)=>RecaptchaWidget()));},child: Text("verify"),),
       ),
     );
   }
 }
+
+//
+// import 'package:flutter/material.dart';
+//
+// void main() {
+//   runApp(MyApp());
+// }
+//
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       home: Scaffold(
+//         appBar: AppBar(
+//           title: Text('Container Stack'),
+//         ),
+//         body: ContainerStack(),
+//       ),
+//     );
+//   }
+// }
+//
+// class ContainerStack extends StatefulWidget {
+//   @override
+//   _ContainerStackState createState() => _ContainerStackState();
+// }
+//
+// class _ContainerStackState extends State<ContainerStack> {
+//   bool isContainerVisible = false;
+//
+//   void toggleContainerVisibility() {
+//     setState(() {
+//       isContainerVisible = !isContainerVisible;
+//     });
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Stack(
+//       children: [
+//         // Bottom container
+//         Container(
+//           color: Colors.blue,
+//           height: 200,
+//           width: MediaQuery.of(context).size.width,
+//         ),
+//         // Top container (may be invisible)
+//         Visibility(
+//           visible: isContainerVisible,
+//           child: GestureDetector(
+//             onTap: toggleContainerVisibility,
+//             child: Container(
+//               color: Colors.black.withOpacity(0.2), // Transparent red
+//               height: MediaQuery.of(context).size.height,
+//               width: MediaQuery.of(context).size.width,
+//               child: Center(
+//                   child:CircularProgressIndicator()
+//               ),
+//             ),
+//           ),
+//         ),
+//         // Button to toggle visibility
+//         Positioned(
+//           bottom: 20,
+//           left: MediaQuery.of(context).size.width / 2 - 50,
+//           child: ElevatedButton(
+//             onPressed: toggleContainerVisibility,
+//             child: Text(isContainerVisible ? 'Hide' : 'Show'),
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+// }
